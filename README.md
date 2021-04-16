@@ -18,7 +18,7 @@ This project mainly uses these technologies: **React**, **TypeScript**, **GraphQ
 ## 🔗 Credits
 
 - [Ben Awad](https://github.com/benawad)
-- [Youtube](https://youtu.be/i6ypd7qv3z8)
+- [Youtube](https://youtube.com/watch?v=I6ypD7qv3Z8)
 - [Original Code](https://github.com/benawad/lireddit)
 
 ## 📃 License
