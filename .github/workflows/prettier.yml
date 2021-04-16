@@ -23,6 +23,7 @@ jobs:
           prettier_options: --write ./**/*.{js,jsx,ts,tsx,md,json,html,css,yml}
           same_commit: false
           only_changed: false
+          prettier_plugins: 'prettier-plugin-organize-imports'
           commit_message: 🎨 Prettified code
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
