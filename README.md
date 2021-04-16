@@ -1,26 +1,19 @@
 <h1 align="center">
-  <strong><a href="https://github.com/ArthurFiorette/lireddit/" target="_blank">liReddit</a> 📰</strong>
+  <strong><a href="https://github.com/ArthurFiorette/lireddit/" target="_blank">liReddit</a> 📬</strong>
 </h1>
 <p align="center">
-  <i>A fullstack project course from <a href="https://github.com/benawad" target="_blank">@benawad</a></i>
+  <i>A <b>Reddit-like</b> messaging project</i>
 </p>
 
 ## 📖 About
 
-This project was created to learn and practice the 14-hour course on Youtube from [@benawad](https://github.com/benawad). **Fullstack React GraphQL TypeScript Tutorial**. Feel free to contribute with this project.
+This project was created to learn and practice the 14-hour course on Youtube, **Fullstack React GraphQL TypeScript Tutorial**, from Ben Awad. Feel free to contribute with this project.
+
+> This project will not have a continuous line of commits, since github is not the focus here.
 
 ## 🛠 Technologies
 
-- React
-- TypeScript
-- GraphQL
-- URQL/Apollo
-- Node.js
-- PostgreSQL
-- MirkoORM/TypeORM
-- Redis
-- Next.js
-- TypeGraphQL
+This project mainly uses these technologies: **React**, **TypeScript**, **GraphQL**, **URQL/Apollo**, **Node.js**, **PostgreSQL**, **MirkoORM/TypeORM**, **Redis**, **Next.js** and **TypeGraphQL**.
 
 ## 🔗 Credits
 
