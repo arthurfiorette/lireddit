@@ -1,0 +1,21 @@
+{
+  "name": "lireddit-web",
+  "version": "1.0.0",
+  "description": "A Reddit-like messaging project",
+  "main": "src/index.tsx",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ArthurFiorette/lireddit.git"
+  },
+  "author": "Arthur Fiorette",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ArthurFiorette/lireddit/issues"
+  },
+  "homepage": "https://github.com/ArthurFiorette/lireddit#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}
