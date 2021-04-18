@@ -1,16 +1,16 @@
-import 'reflect-metadata';
 import { MikroORM } from '@mikro-orm/core';
-import mikroConfig from './mikro-orm.config';
-import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-import { buildSchema } from 'type-graphql';
-import redis from 'redis';
-import session from 'express-session';
 import connectRedis from 'connect-redis';
+import express from 'express';
+import session from 'express-session';
+import redis from 'redis';
+import 'reflect-metadata';
+import { buildSchema } from 'type-graphql';
+import { __prod__ } from './constants';
+import mikroConfig from './mikro-orm.config';
 import { HelloResolver } from './resolvers/Hello';
 import { PostResolver } from './resolvers/Post';
 import { UserResolver } from './resolvers/User';
-import { __prod__ } from './constants';
 
 (async () => {
   const orm = await MikroORM.init(mikroConfig);

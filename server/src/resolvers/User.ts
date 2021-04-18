@@ -1,5 +1,5 @@
 // import { User } from '../entities/User';
-import { ResolverContext } from '../types';
+import argon2 from 'argon2';
 import {
   Arg,
   Ctx,
@@ -10,8 +10,8 @@ import {
   Query,
   Resolver,
 } from 'type-graphql';
-import argon2 from 'argon2';
 import { User } from '../entities/User';
+import { ResolverContext } from '../types';
 
 @InputType()
 class UsernamePasswordInput {

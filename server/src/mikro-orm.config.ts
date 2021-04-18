@@ -1,8 +1,8 @@
 import { Connection, IDatabaseDriver, Options } from '@mikro-orm/core';
+import path from 'path';
 import { __prod__ } from './constants';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
-import path from 'path';
 
 export default {
   entities: [Post, User],
