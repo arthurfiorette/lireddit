@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Reddit-like messaging project",
   "main": "src/index.ts",
-  "private":"true",
+  "private": "true",
   "scripts": {
     "watch": "tsc -w",
     "dev": "nodemon dist/index.js",
