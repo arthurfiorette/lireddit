@@ -1,16 +1,8 @@
-import React from 'react';
-
+import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
-import {
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormLabel,
-  Input,
-} from '@chakra-ui/react';
-import { Wrapper } from '../components/Wrapper';
+import React from 'react';
 import { InputField } from '../components/InputField';
-import { Box } from '@chakra-ui/react';
+import { Wrapper } from '../components/Wrapper';
 
 const Register = (({}) => {
   return (
