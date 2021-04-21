@@ -1,13 +1,13 @@
 import { ChakraProvider, ColorModeProvider } from '@chakra-ui/react';
-import theme from '../theme';
-import { Provider, createClient, dedupExchange, fetchExchange } from 'urql';
-import { cacheExchange, Cache, QueryInput } from '@urql/exchange-graphcache';
+import { Cache, cacheExchange, QueryInput } from '@urql/exchange-graphcache';
+import { createClient, dedupExchange, fetchExchange, Provider } from 'urql';
 import {
   LoginMutation,
   MeDocument,
   MeQuery,
   RegisterMutation,
 } from '../generated/graphql';
+import theme from '../theme';
 
 function betterUpdateQuery<Result, Query>(
   cache: Cache,

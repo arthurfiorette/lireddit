@@ -1,11 +1,11 @@
 import { Box, Button } from '@chakra-ui/react';
 import { Form, Formik } from 'formik';
+import { useRouter } from 'next/router';
 import React from 'react';
 import { InputField } from '../components/InputField';
 import { Wrapper } from '../components/Wrapper';
 import { useRegisterMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
-import { useRouter } from 'next/router';
 
 const Register = (() => {
   const router = useRouter();
@@ -16,7 +16,7 @@ const Register = (() => {
       <Formik
         initialValues={{ username: '', password: '' }}
         onSubmit={async (values, { setErrors }) => {
-          const { data } = await register({options:values});
+          const { data } = await register({ options: values });
           if (data?.register.errors) {
             setErrors(toErrorMap(data.register.errors));
           } else if (data?.register.user) {

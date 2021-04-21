@@ -1,7 +1,6 @@
-import React from 'react';
-
 import { Box, Button, Flex, Link } from '@chakra-ui/react';
 import NextLink from 'next/link';
+import React from 'react';
 import { useMeQuery } from '../generated/graphql';
 
 export const NavBar = (({}) => {
