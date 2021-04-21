@@ -84,6 +84,15 @@ export class UserResolver {
     const user = em.create(User, { username, password: hashedPassword });
 
     try {
+      // The error didn't ocurred to me :)
+      // Time: 3:10:10
+      //
+      // const [user] = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert({
+      //   username,
+      //   password: hashedPassword,
+      //   created_at: new Date(),
+      //   updated_at: new Date()
+      // }).returning('*');
       await em.persistAndFlush(user);
     } catch (err) {
       // duplicate username error code
