@@ -9,9 +9,9 @@ import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { __prod__ } from './constants';
 import mikroConfig from './mikro-orm.config';
-import { HelloResolver } from './resolvers/Hello';
-import { PostResolver } from './resolvers/Post';
-import { UserResolver } from './resolvers/User';
+import { HelloResolver } from './resolvers/hello';
+import { PostResolver } from './resolvers/post';
+import { UserResolver } from './resolvers/user';
 
 (async () => {
   const orm = await MikroORM.init(mikroConfig);
