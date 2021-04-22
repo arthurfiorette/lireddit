@@ -3,7 +3,7 @@ import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { COOKIE_NAME } from '../constants';
 import { User } from '../entities/User';
 import { ResolverContext } from '../types';
-import { validateRegisterInput, EMAIL_REGEX } from '../utils/validation';
+import { EMAIL_REGEX, validateRegisterInput } from '../utils/validation';
 import { UsernamePasswordInput, UserResponse } from './types';
 
 const error = (field: string, message: string) => ({
