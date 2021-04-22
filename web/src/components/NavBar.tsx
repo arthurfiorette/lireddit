@@ -4,7 +4,7 @@ import React from 'react';
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
 
 export const NavBar = (({}) => {
-  const [{fetching: logoutFetching}, logout] = useLogoutMutation();
+  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
   const [{ data, fetching }] = useMeQuery();
 
   let body;
@@ -29,7 +29,11 @@ export const NavBar = (({}) => {
     body = (
       <Flex>
         <Box mr={2}>{data.me.username}</Box>
-        <Button onClick={() => logout()} isLoading={logoutFetching} variant="link">
+        <Button
+          onClick={() => logout()}
+          isLoading={logoutFetching}
+          variant="link"
+        >
           logout
         </Button>
       </Flex>
