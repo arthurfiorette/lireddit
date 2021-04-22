@@ -16,15 +16,16 @@ import { UserResolver } from './resolvers/user';
 (async () => {
   const orm = await MikroORM.init(mikroConfig);
   // Run migrations before anything else
-  orm.getMigrator().up();
+  await orm.getMigrator().up();
 
   const app = express();
-
   const RedisStore = connectRedis(session);
   const redisClient = redis.createClient();
 
+  // Enable CORS
   app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
 
+  // Uses express-session to manage cookies
   app.use(
     session({
       name: COOKIE_NAME,
@@ -45,7 +46,7 @@ import { UserResolver } from './resolvers/user';
     })
   );
 
-  const apolloServer = new ApolloServer({
+  const apollo = new ApolloServer({
     schema: await buildSchema({
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
@@ -53,7 +54,13 @@ import { UserResolver } from './resolvers/user';
     context: ({ req, res }) => ({ em: orm.em, req, res }),
   });
 
-  apolloServer.applyMiddleware({ app, cors: false });
+  apollo.applyMiddleware({ app, cors: false });
 
-  app.listen(1227, () => console.log('Server started'));
+  const server = app.listen(1227, () => console.log('Server started'));
+
+  process.on('SIGTERM', () => {
+    server.close(async () => {
+      await orm.close();
+    });
+  });
 })().catch(console.error);
