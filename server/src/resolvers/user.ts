@@ -9,6 +9,7 @@ import {
   Query,
   Resolver,
 } from 'type-graphql';
+import { COOKIE_NAME } from '../constants';
 import { User } from '../entities/User';
 import { ResolverContext } from '../types';
 
@@ -143,5 +144,15 @@ export class UserResolver {
     req.session!.userId = user.id;
 
     return { user };
+  }
+
+  @Mutation(() => Boolean)
+  async logout(@Ctx() { req, res }: ResolverContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        res.clearCookie(COOKIE_NAME);
+        resolve(!err);
+      })
+    );
   }
 }

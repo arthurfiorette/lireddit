@@ -3,6 +3,7 @@ import { Cache, cacheExchange, QueryInput } from '@urql/exchange-graphcache';
 import { createClient, dedupExchange, fetchExchange, Provider } from 'urql';
 import {
   LoginMutation,
+  LogoutMutation,
   MeDocument,
   MeQuery,
   RegisterMutation,
@@ -26,6 +27,16 @@ const client = createClient({
     cacheExchange({
       updates: {
         Mutation: {
+          // Update the MeQuery cache to return the logged on user.
+          logout: (result, _args, cache, _info) => {
+            betterUpdateQuery<LogoutMutation, MeQuery>(
+              cache,
+              { query: MeDocument },
+              result,
+              () => ({ me: null })
+            );
+          },
+          // Update the MeQuery cache to return the logged on user.
           login: (result, _args, cache, _info) => {
             betterUpdateQuery<LoginMutation, MeQuery>(
               cache,
@@ -35,6 +46,7 @@ const client = createClient({
                 res.login.errors ? query : { me: res.login.user }
             );
           },
+          // Update the MeQuery cache to return the new registered user for automatic login when registering.
           register: (result, _args, cache, _info) => {
             betterUpdateQuery<RegisterMutation, MeQuery>(
               cache,
