@@ -1,110 +1,75 @@
 import argon2 from 'argon2';
-import {
-  Arg,
-  Ctx,
-  Field,
-  InputType,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from 'type-graphql';
+import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
 import { COOKIE_NAME } from '../constants';
 import { User } from '../entities/User';
 import { ResolverContext } from '../types';
+import { validateRegisterInput, EMAIL_REGEX } from '../utils/validation';
+import { UsernamePasswordInput, UserResponse } from './types';
 
-@InputType()
-class UsernamePasswordInput {
-  @Field()
-  username: string;
-
-  @Field()
-  password: string;
-}
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-
-  @Field()
-  message: string;
-}
-
-@ObjectType()
-class UserResponse {
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
-
-  @Field(() => User, { nullable: true })
-  user?: User;
-}
+const error = (field: string, message: string) => ({
+  errors: [{ field: field, message: message }],
+});
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => Boolean)
+  async forgotPassword() {
+    // @Ctx() {em, req}: ResolverContext, // @Arg('email') email: string,
+    // const user = await em.findOne(User, {email})
+    return true;
+  }
+
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, em }: ResolverContext): Promise<User | null> {
+  async me(@Ctx() { req, res, em }: ResolverContext): Promise<User | null> {
+    const id = req.session.userId;
+
     // you are not logged in
-    if (!req.session.userId) {
+    if (!id) {
       return null;
     }
 
-    const user = await em.findOne(User, { id: req.session.userId });
+    const user = await em.findOne(User, { id });
+
+    if (!user) {
+      // Clear the cookie if there is no user related to it
+      res.clearCookie(COOKIE_NAME);
+    }
+
     return user;
   }
 
   @Mutation(() => UserResponse)
   async register(
-    @Arg('options') { username, password }: UsernamePasswordInput,
+    @Arg('options') { username, password, email }: UsernamePasswordInput,
     @Ctx() { em, req }: ResolverContext
   ): Promise<UserResponse> {
-    if (username.length <= 2) {
-      return {
-        errors: [
-          {
-            field: 'username',
-            message: 'length must be greater than 2',
-          },
-        ],
-      };
-    }
-    if (password.length <= 2) {
-      return {
-        errors: [
-          {
-            field: 'password',
-            message: 'length must be greater than 2',
-          },
-        ],
-      };
-    }
+    const errors = validateRegisterInput({ username, password, email });
+    if (errors.length > 0) return { errors };
 
     const hashedPassword = await argon2.hash(password);
 
-    const user = em.create(User, { username, password: hashedPassword });
+    const user = em.create(User, { username, email, password: hashedPassword });
 
     try {
-      // The error didn't ocurred to me :)
-      // Time: 3:10:10
-      //
-      // const [user] = await (em as EntityManager).createQueryBuilder(User).getKnexQuery().insert({
-      //   username,
-      //   password: hashedPassword,
-      //   created_at: new Date(),
-      //   updated_at: new Date()
-      // }).returning('*');
+      // throw { ...new Error('asd'), a: 2, b: 5 };
+      // The error didn't ocurred to me at 3:10:10
       await em.persistAndFlush(user);
     } catch (err) {
-      // duplicate username error code
+      // duplicate constraint error code
       if (err.code === '23505') {
-        return {
-          errors: [
-            {
-              field: 'username',
-              message: 'username already taken',
-            },
-          ],
-        };
+        switch (err.constraint) {
+          case 'user_email_unique':
+            return error(
+              'email',
+              'this email is already associated with another account'
+            );
+
+          case 'user_username_unique':
+            error('username', 'username already taken');
+        }
+      } else {
+        console.log('erro:', { ...err });
+        return error('username', `Unknown error: ${err.code}`);
       }
     }
 
@@ -115,21 +80,29 @@ export class UserResolver {
 
   @Mutation(() => UserResponse)
   async login(
-    @Arg('options') { username, password }: UsernamePasswordInput,
+    @Arg('usernameOrEmail') usernameOrEmail: string,
+    @Arg('password') password: string,
     @Ctx() { em, req }: ResolverContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, { username });
+    const user = await em.findOne(User, {
+      [EMAIL_REGEX.test(usernameOrEmail)
+        ? 'email'
+        : 'username']: usernameOrEmail,
+    });
+
     if (!user) {
       return {
         errors: [
           {
-            field: 'username',
+            field: 'usernameOrEmail',
             message: "username doesn't exist",
           },
         ],
       };
     }
+
     const valid = await argon2.verify(user.password, password);
+
     if (!valid) {
       return {
         errors: [
@@ -147,7 +120,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  async logout(@Ctx() { req, res }: ResolverContext) {
+  async logout(@Ctx() { req, res }: ResolverContext): Promise<boolean> {
     return new Promise((resolve) =>
       req.session.destroy((err) => {
         res.clearCookie(COOKIE_NAME);
