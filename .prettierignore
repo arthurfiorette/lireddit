@@ -1,3 +1,8 @@
 node_modules
 .github/workflows
+
+# Graphql generated types
 web/src/generated
+
+# Mikro ORM generated migrations
+server/src/migrations
