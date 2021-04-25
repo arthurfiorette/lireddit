@@ -10,8 +10,6 @@ export const NavBar = (({}) => {
     pause: isServer(),
   });
 
-  console.log('data', data);
-
   let body;
 
   // data is loading

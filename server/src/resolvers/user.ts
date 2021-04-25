@@ -114,7 +114,6 @@ export class UserResolver {
     const user = em.create(User, { username, email, password: hashedPassword });
 
     try {
-      // throw { ...new Error('asd'), a: 2, b: 5 };
       // The error didn't ocurred to me at 3:10:10
       await em.persistAndFlush(user);
     } catch (err) {
@@ -131,6 +130,7 @@ export class UserResolver {
             return error('username', 'username already taken');
         }
       } else {
+        // Should never get here.
         console.log('error:', { ...err });
         return error('username', `Unknown error: ${err.code}`);
       }
