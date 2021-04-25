@@ -1,12 +1,12 @@
 import argon2 from 'argon2';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { v4 as uuid } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { User } from '../entities/User';
 import { ResolverContext } from '../types';
 import { sendEmail } from '../utils/sendEmail';
-import { validateRegisterInput, EMAIL_REGEX } from '../utils/validation';
+import { EMAIL_REGEX, validateRegisterInput } from '../utils/validation';
 import { UsernamePasswordInput, UserResponse } from './types';
-import { v4 as uuid } from 'uuid';
 
 const error = (field: string, message: string): UserResponse => ({
   errors: [{ field: field, message: message }],
@@ -60,7 +60,6 @@ export class UserResolver {
       return true;
     }
 
-    
     // Prevent the delay if the user exists
     // https://youtu.be/I6ypD7qv3Z8?t=19278
     (async () => {
