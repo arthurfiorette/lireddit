@@ -1,21 +1,84 @@
 import argon2 from 'argon2';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
-import { COOKIE_NAME } from '../constants';
+import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { User } from '../entities/User';
 import { ResolverContext } from '../types';
+import { sendEmail } from '../utils/sendEmail';
 import { validateRegisterInput, EMAIL_REGEX } from '../utils/validation';
 import { UsernamePasswordInput, UserResponse } from './types';
+import { v4 as uuid } from 'uuid';
 
-const error = (field: string, message: string) => ({
+const error = (field: string, message: string): UserResponse => ({
   errors: [{ field: field, message: message }],
 });
 
 @Resolver()
 export class UserResolver {
+  @Mutation(() => UserResponse)
+  async changePassword(
+    @Arg('token') token: string,
+    @Arg('newPassword') newPassword: string,
+    @Ctx() { em, redis, req }: ResolverContext
+  ): Promise<UserResponse> {
+    if (newPassword.length < 4) {
+      return error('newPassword', 'length must be greater than 4 characters');
+    }
+
+    const key = FORGET_PASSWORD_PREFIX + token;
+    const userId = await redis.get(key);
+
+    if (!userId) {
+      return error('token', 'token expired, get a new one');
+    }
+
+    const user = await em.findOne(User, { id: parseInt(userId) });
+
+    if (!user) {
+      return error('token', 'user no longer exists');
+    }
+
+    user.password = await argon2.hash(newPassword);
+    await em.persistAndFlush(user);
+
+    await redis.del(key);
+
+    // login user after change password
+    req.session.userId = user.id;
+
+    return { user };
+  }
+
   @Mutation(() => Boolean)
-  async forgotPassword() {
-    // @Ctx() {em, req}: ResolverContext, // @Arg('email') email: string,
-    // const user = await em.findOne(User, {email})
+  async forgotPassword(
+    @Ctx() { em, redis }: ResolverContext,
+    @Arg('email') email: string
+  ) {
+    const user = await em.findOne(User, { email });
+
+    if (!user) {
+      // the email is not in the db
+      return true;
+    }
+
+    
+    // Prevent the delay if the user exists
+    // https://youtu.be/I6ypD7qv3Z8?t=19278
+    (async () => {
+      const token = uuid();
+
+      await redis.set(
+        FORGET_PASSWORD_PREFIX + token,
+        user.id,
+        'ex',
+        1000 * 60 * 60 * 24 * 3 // 3 Days
+      );
+
+      await sendEmail(
+        email,
+        `<a href="http://localhost:3000/change-password/${token}">Reset Password</a>`
+      );
+    })();
+
     return true;
   }
 
@@ -65,10 +128,10 @@ export class UserResolver {
             );
 
           case 'user_username_unique':
-            error('username', 'username already taken');
+            return error('username', 'username already taken');
         }
       } else {
-        console.log('erro:', { ...err });
+        console.log('error:', { ...err });
         return error('username', `Unknown error: ${err.code}`);
       }
     }
@@ -91,27 +154,13 @@ export class UserResolver {
     });
 
     if (!user) {
-      return {
-        errors: [
-          {
-            field: 'usernameOrEmail',
-            message: "username doesn't exist",
-          },
-        ],
-      };
+      return error('usernameOrEmail', "username doesn't exist");
     }
 
     const valid = await argon2.verify(user.password, password);
 
     if (!valid) {
-      return {
-        errors: [
-          {
-            field: 'password',
-            message: 'incorrect password',
-          },
-        ],
-      };
+      return error('password', 'incorrect password');
     }
 
     req.session!.userId = user.id;
