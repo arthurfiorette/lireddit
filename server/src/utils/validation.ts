@@ -24,10 +24,7 @@ export function validateRegisterInput({
   }
 
   if (password.length < 4) {
-    setError(
-      'password',
-      'length must be greater than 4 characters'
-    );
+    setError('password', 'length must be greater than 4 characters');
   }
 
   if (!EMAIL_REGEX.test(email)) {

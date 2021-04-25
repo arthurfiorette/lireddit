@@ -16,7 +16,7 @@ const Register = (() => {
   return (
     <Wrapper variant="small">
       <Formik
-        initialValues={{ username: '', password: '', email: '', }}
+        initialValues={{ username: '', password: '', email: '' }}
         onSubmit={async (values, { setErrors }) => {
           const { data } = await register({ options: values });
           if (data?.register.errors) {
