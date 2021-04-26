@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/ArthurFiorette/lireddit#readme",
   "dependencies": {
-    "@mikro-orm/cli": "^4.5.3",
+    "@mikro-orm/cli": "^4.5.4",
     "@mikro-orm/core": "^4.5.3",
     "@mikro-orm/migrations": "^4.5.3",
     "@mikro-orm/postgresql": "^4.5.3",
