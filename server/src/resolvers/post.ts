@@ -1,39 +1,29 @@
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { Arg, Mutation, Query, Resolver } from 'type-graphql';
 import { Post } from '../entities/Post';
-import { ResolverContext } from '../types';
 
 @Resolver()
 export class PostResolver {
   @Query(() => [Post])
-  async posts(@Ctx() { em }: ResolverContext): Promise<Post[]> {
-    return em.find(Post, {});
+  async posts(): Promise<Post[]> {
+    return Post.find();
   }
 
   @Query(() => Post, { nullable: true })
-  async post(
-    @Arg('id') id: number,
-    @Ctx() { em }: ResolverContext
-  ): Promise<Post | null> {
-    return em.findOne(Post, { id });
+  async post(@Arg('id') id: number): Promise<Post | undefined> {
+    return Post.findOne(id);
   }
 
   @Mutation(() => Post)
-  async createPost(
-    @Arg('title') title: string,
-    @Ctx() { em }: ResolverContext
-  ): Promise<Post> {
-    const post = em.create(Post, { title });
-    await em.persistAndFlush(post);
-    return post;
+  async createPost(@Arg('title') title: string): Promise<Post> {
+    return Post.create({ title }).save();
   }
 
   @Mutation(() => Post, { nullable: true })
   async updatePost(
     @Arg('id') id: number,
-    @Arg('title', { nullable: true }) title: string,
-    @Ctx() { em }: ResolverContext
+    @Arg('title', { nullable: true }) title: string
   ): Promise<Post | null> {
-    const post = await em.findOne(Post, { id });
+    const post = await Post.findOne(id);
 
     if (!post) {
       return null;
@@ -41,18 +31,15 @@ export class PostResolver {
 
     if (typeof title !== 'undefined') {
       post.title = title;
-      await em.persistAndFlush(post);
+      Post.update({ id }, { title });
     }
 
     return post;
   }
 
   @Mutation(() => Boolean)
-  async deletePost(
-    @Arg('id') id: number,
-    @Ctx() { em }: ResolverContext
-  ): Promise<boolean> {
-    await em.nativeDelete(Post, { id });
-    return true;
+  async deletePost(@Arg('id') id: number): Promise<boolean> {
+    const result = await Post.delete(id);
+    return !!result.affected;
   }
 }

@@ -1,22 +1,30 @@
-import { MikroORM } from '@mikro-orm/core';
+// TypeORM and TypeGraphql need this at the top
+import 'reflect-metadata';
 import { ApolloServer } from 'apollo-server-express';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import express from 'express';
 import session from 'express-session';
 import Redis from 'ioredis';
-import 'reflect-metadata';
 import { buildSchema } from 'type-graphql';
 import { COOKIE_NAME, __prod__ } from './constants';
-import mikroConfig from './mikro-orm.config';
 import { HelloResolver } from './resolvers/hello';
 import { PostResolver } from './resolvers/post';
 import { UserResolver } from './resolvers/user';
+import { createConnection } from 'typeorm';
+import { Post } from './entities/Post';
+import { User } from './entities/User';
 
 (async () => {
-  const orm = await MikroORM.init(mikroConfig);
-  // Run migrations before anything else
-  await orm.getMigrator().up();
+  const connection = await createConnection({
+    type: 'postgres',
+    database: 'lireddit',
+    username: 'postgres',
+    password: 'postgres',
+    logging: true,
+    synchronize: true,
+    entities: [Post, User],
+  });
 
   const app = express();
   const RedisStore = connectRedis(session);
@@ -51,7 +59,7 @@ import { UserResolver } from './resolvers/user';
       resolvers: [HelloResolver, PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }) => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }) => ({ req, res, redis }),
   });
 
   apollo.applyMiddleware({ app, cors: false });
@@ -60,7 +68,7 @@ import { UserResolver } from './resolvers/user';
 
   process.on('SIGTERM', () => {
     server.close(async () => {
-      await orm.close();
+      await connection.close();
     });
   });
 })().catch(console.error);

@@ -1,5 +1,6 @@
 import argon2 from 'argon2';
 import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
 import { User } from '../entities/User';
@@ -18,7 +19,7 @@ export class UserResolver {
   async changePassword(
     @Arg('token') token: string,
     @Arg('newPassword') newPassword: string,
-    @Ctx() { em, redis, req }: ResolverContext
+    @Ctx() { redis, req }: ResolverContext
   ): Promise<UserResponse> {
     if (newPassword.length < 4) {
       return error('newPassword', 'length must be greater than 4 characters');
@@ -31,14 +32,17 @@ export class UserResolver {
       return error('token', 'token expired, get a new one');
     }
 
-    const user = await em.findOne(User, { id: parseInt(userId) });
+    const userIdNum = parseInt(userId);
+    const user = await User.findOne(userIdNum);
 
     if (!user) {
       return error('token', 'user no longer exists');
     }
 
-    user.password = await argon2.hash(newPassword);
-    await em.persistAndFlush(user);
+    await User.update(
+      { id: userIdNum },
+      { password: await argon2.hash(newPassword) }
+    );
 
     await redis.del(key);
 
@@ -50,10 +54,10 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   async forgotPassword(
-    @Ctx() { em, redis }: ResolverContext,
+    @Ctx() { redis }: ResolverContext,
     @Arg('email') email: string
   ) {
-    const user = await em.findOne(User, { email });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
       // the email is not in the db
@@ -82,20 +86,16 @@ export class UserResolver {
   }
 
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, res, em }: ResolverContext): Promise<User | null> {
+  async me(@Ctx() { req, res }: ResolverContext): Promise<User | undefined> {
     const id = req.session.userId;
 
     // you are not logged in
-    if (!id) {
-      return null;
-    }
+    if (!id) return;
 
-    const user = await em.findOne(User, { id });
+    const user = await User.findOne(id);
 
-    if (!user) {
-      // Clear the cookie if there is no user related to it
-      res.clearCookie(COOKIE_NAME);
-    }
+    // Clear the cookie if there is no user related to it
+    if (!user) res.clearCookie(COOKIE_NAME);
 
     return user;
   }
@@ -103,36 +103,46 @@ export class UserResolver {
   @Mutation(() => UserResponse)
   async register(
     @Arg('options') { username, password, email }: UsernamePasswordInput,
-    @Ctx() { em, req }: ResolverContext
+    @Ctx() { req }: ResolverContext
   ): Promise<UserResponse> {
     const errors = validateRegisterInput({ username, password, email });
-    if (errors.length > 0) return { errors };
+
+    if (!!errors.length) return { errors };
 
     const hashedPassword = await argon2.hash(password);
 
-    const user = em.create(User, { username, email, password: hashedPassword });
+    let user;
+
+    // The error didn't ocurred to me at 3:10:10
+    // But i implemented the 5:39:39 query builder anyway :)
 
     try {
-      // The error didn't ocurred to me at 3:10:10
-      await em.persistAndFlush(user);
+      const result = await getConnection()
+        .createQueryBuilder()
+        .insert()
+        .into(User)
+        .values({ username, email, password: hashedPassword })
+        .returning('*')
+        .execute();
+      user = result.raw[0];
     } catch (err) {
-      // duplicate constraint error code
+      // Duplicate constraint error code
       if (err.code === '23505') {
         switch (err.constraint) {
-          case 'user_email_unique':
+          case 'UQ_e12875dfb3b1d92d7d7c5377e22': // Unique email constraint
             return error(
               'email',
               'this email is already associated with another account'
             );
 
-          case 'user_username_unique':
+          case 'UQ_78a916df40e02a9deb1c4b75edb': // Unique username constraint
             return error('username', 'username already taken');
         }
-      } else {
-        // Should never get here.
-        console.log('error:', { ...err });
-        return error('username', `Unknown error: ${err.code}`);
       }
+
+      // Should never get here.
+      console.log('error:', { ...err });
+      return error('username', `Unknown error: ${err.code}`);
     }
 
     req.session!.userId = user.id;
@@ -144,12 +154,14 @@ export class UserResolver {
   async login(
     @Arg('usernameOrEmail') usernameOrEmail: string,
     @Arg('password') password: string,
-    @Ctx() { em, req }: ResolverContext
+    @Ctx() { req }: ResolverContext
   ): Promise<UserResponse> {
-    const user = await em.findOne(User, {
-      [EMAIL_REGEX.test(usernameOrEmail)
-        ? 'email'
-        : 'username']: usernameOrEmail,
+    const usernameOrEmailKey = EMAIL_REGEX.test(usernameOrEmail)
+      ? 'email'
+      : 'username';
+
+    const user = await User.findOne({
+      where: { [usernameOrEmailKey]: usernameOrEmail },
     });
 
     if (!user) {

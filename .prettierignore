@@ -3,6 +3,3 @@ node_modules
 
 # Graphql generated types
 web/src/generated
-
-# Mikro ORM generated migrations
-server/src/migrations

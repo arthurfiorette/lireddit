@@ -10,8 +10,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "start:tsn": "ts-node src/index.ts",
-    "dev:tsn": "nodemon --exec ts-node dist/index.js",
-    "migration:create": "mikro-orm migration:create"
+    "dev:tsn": "nodemon --exec ts-node dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,10 +23,6 @@
   },
   "homepage": "https://github.com/ArthurFiorette/lireddit#readme",
   "dependencies": {
-    "@mikro-orm/cli": "^4.5.3",
-    "@mikro-orm/core": "^4.5.3",
-    "@mikro-orm/migrations": "^4.5.3",
-    "@mikro-orm/postgresql": "^4.5.3",
     "apollo-server-express": "^2.23.0",
     "argon2": "^0.27.2",
     "connect-redis": "^5.1.0",
@@ -40,6 +35,7 @@
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
+    "typeorm": "^0.2.32",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
@@ -54,12 +50,5 @@
     "nodemon": "^2.0.7",
     "ts-node": "^9.1.1",
     "typescript": "^4.2.4"
-  },
-  "mikro-orm": {
-    "useTsNode": true,
-    "configPaths": [
-      "./src/mikro-orm.config.ts",
-      "./dist/mikro-orm.config.js"
-    ]
   }
 }
