@@ -25,7 +25,7 @@ jobs:
           only_changed: false
           # This module uses a script to install globally every specified npm module,
           # and as prettier-plugin-organize-imports needs typescript, i added both
-          prettier_plugins: 'typescript prettier-plugin-organize-imports'
+          # prettier_plugins: 'typescript prettier-plugin-organize-imports'
           commit_message: '🎨 Prettified code'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
