@@ -14,17 +14,21 @@ import { UserResolver } from './resolvers/user';
 import { createConnection } from 'typeorm';
 import { Post } from './entities/Post';
 import { User } from './entities/User';
+import path from 'path';
 
 (async () => {
-  const connection = await createConnection({
+  const conn = await createConnection({
     type: 'postgres',
     database: 'lireddit',
     username: 'postgres',
     password: 'postgres',
     logging: true,
+    migrations: [path.join(__dirname, './migrations/*')],
     synchronize: true,
     entities: [Post, User],
   });
+
+  await conn.runMigrations();
 
   const app = express();
   const RedisStore = connectRedis(session);
@@ -68,7 +72,7 @@ import { User } from './entities/User';
 
   process.on('SIGTERM', () => {
     server.close(async () => {
-      await connection.close();
+      await conn.close();
     });
   });
 })().catch(console.error);

@@ -66,17 +66,17 @@ export function createUrqlClient(ssrExchange: Exchange) {
               );
             },
             // Update the PostQuery adding the created post to it.
-            createPost: (result, _args, cache, _info) => {
-              betterUpdateQuery<CreatePostMutation, PostsQuery>(
-                cache,
-                { query: PostsDocument },
-                result,
-                (res, query) =>
-                  res.createPost
-                    ? { posts: [...query.posts, res.createPost] }
-                    : query
-              );
-            },
+            // createPost: (result, _args, cache, _info) => {
+            //   betterUpdateQuery<CreatePostMutation, PostsQuery>(
+            //     cache,
+            //     { query: PostsDocument },
+            //     result,
+            //     (res, query) =>
+            //       res.createPost
+            //         ? { posts: [...query.posts, res.createPost] }
+            //         : query
+            //   );
+            // },
           },
         },
       }),

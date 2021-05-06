@@ -79,6 +79,7 @@ export type Post = {
   creatorId: Scalars['Float'];
   createdAt: Scalars['String'];
   updatedAt: Scalars['String'];
+  textPreview: Scalars['String'];
 };
 
 export type PostInput = {
@@ -92,6 +93,12 @@ export type Query = {
   posts: Array<Post>;
   post?: Maybe<Post>;
   me?: Maybe<User>;
+};
+
+
+export type QueryPostsArgs = {
+  cursor?: Maybe<Scalars['String']>;
+  limit: Scalars['Int'];
 };
 
 
@@ -127,7 +134,7 @@ export type RegularErrorsFragment = (
 
 export type RegularPostFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'text' | 'votes' | 'creatorId'>
+  & Pick<Post, 'id' | 'title' | 'textPreview' | 'votes' | 'creatorId'>
 );
 
 export type RegularUserFragment = (
@@ -229,7 +236,10 @@ export type MeQuery = (
   )> }
 );
 
-export type PostsQueryVariables = Exact<{ [key: string]: never; }>;
+export type PostsQueryVariables = Exact<{
+  limit: Scalars['Int'];
+  cursor?: Maybe<Scalars['String']>;
+}>;
 
 
 export type PostsQuery = (
@@ -244,7 +254,7 @@ export const RegularPostFragmentDoc = gql`
     fragment RegularPost on Post {
   id
   title
-  text
+  textPreview
   votes
   creatorId
 }
@@ -346,8 +356,8 @@ export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'q
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts {
-  posts {
+    query Posts($limit: Int!, $cursor: String) {
+  posts(cursor: $cursor, limit: $limit) {
     ...RegularPost
   }
 }

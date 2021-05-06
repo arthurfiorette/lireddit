@@ -57,7 +57,7 @@ export const NavBar = (({}) => {
             style={{ textDecoration: 'none' }}
             _hover={{ color: '#251c19' }}
           >
-            Lireddit
+            LiReddit
           </Link>
         </NextLink>
       </Box>

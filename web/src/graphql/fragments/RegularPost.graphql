@@ -1,7 +1,7 @@
 fragment RegularPost on Post {
   id
   title
-  text
+  textPreview
   votes
   creatorId
 }
