@@ -1,15 +1,33 @@
 import { cacheExchange } from '@urql/exchange-graphcache';
-import { dedupExchange, fetchExchange } from 'urql';
+import { dedupExchange, Exchange, fetchExchange } from 'urql';
+import { pipe, tap } from 'wonka';
 import {
+  CreatePostMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
+  PostsDocument,
+  PostsQuery,
   RegisterMutation,
 } from '../generated/graphql';
 import { betterUpdateQuery } from './betterUpdateQuery';
+import Router from 'next/router';
 
-export function createUrqlClient(ssrExchange: any, _ctx: any) {
+const errorExchange: Exchange = ({ forward }) => (ops$) => {
+  return pipe(
+    forward(ops$),
+    tap(({ error }) => {
+      if (error) {
+        if (error.message == '[GraphQL] Not authenticated') {
+          Router.push('/login');
+        }
+      }
+    })
+  );
+};
+
+export function createUrqlClient(ssrExchange: Exchange) {
   return {
     url: 'http://localhost:1227/graphql',
     fetchOptions: { credentials: 'include' as const },
@@ -47,9 +65,20 @@ export function createUrqlClient(ssrExchange: any, _ctx: any) {
                   res.register.errors ? query : { me: res.register.user }
               );
             },
+            // Update the PostQuery adding the created post to it.
+            createPost: (result, _args, cache, _info) => {
+              betterUpdateQuery<CreatePostMutation, PostsQuery>(
+                cache,
+                { query: PostsDocument },
+                result,
+                (res, query) =>
+                  res.createPost ? { posts: [...query.posts, res.createPost] } : query
+              );
+            },
           },
         },
       }),
+      errorExchange,
       ssrExchange,
       fetchExchange,
     ],

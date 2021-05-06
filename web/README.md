@@ -11,8 +11,6 @@
 
 ### 🏃 Running
 
-> Note: Every **Yarn** command can be also execute with only **NPM**.
-
 ```sh
 # Install dependencies
 $ yarn

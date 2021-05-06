@@ -1,0 +1,7 @@
+fragment RegularPost on Post {
+  id
+  title
+  text
+  votes
+  creatorId
+}

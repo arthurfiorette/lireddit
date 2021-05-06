@@ -1,4 +1,4 @@
-import { FieldError, UsernamePasswordInput } from '../resolvers/types';
+import { FieldError, UsernamePasswordInput } from '../resolvers/user';
 
 // Valid email
 export const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;

@@ -6,35 +6,30 @@ import { isServer } from '../utils/isServer';
 
 export const NavBar = (({}) => {
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-  const [{ data, fetching }] = useMeQuery({
+  const [{ data }] = useMeQuery({
     pause: isServer(),
   });
 
-  let body;
+  let body = (
+    <>
+      <NextLink href="/login">
+        <Link mr={4}>Login</Link>
+      </NextLink>
+      <NextLink href="/register">
+        <Link>Register</Link>
+      </NextLink>
+    </>
+  );
 
-  // data is loading
-  if (fetching) {
-    body = null;
-    // user not logged in
-  } else if (!data?.me) {
-    body = (
-      <>
-        <NextLink href="/login">
-          <Link mr={4}>Login</Link>
-        </NextLink>
-        <NextLink href="/register">
-          <Link>Register</Link>
-        </NextLink>
-      </>
-    );
-    // user logged in
-  } else {
+  if (data?.me) {
     body = (
       <Flex>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => logout()}
           isLoading={logoutFetching}
+          color="#FCFAF5"
+          _hover={{ color: '#251c19' }}
           variant="link"
         >
           logout
@@ -44,7 +39,28 @@ export const NavBar = (({}) => {
   }
 
   return (
-    <Flex bg="tan" p={4}>
+    <Flex
+      zIndex={1}
+      position="sticky"
+      top={0}
+      bg="teal"
+      color="#FCFAF5"
+      fontSize="1.1em"
+      p={4}
+      boxShadow="0px 1px 3px #474F60"
+    >
+      <Box>
+        <NextLink href="/">
+          <Link
+            mr={4}
+            fontFamily="sans-serif"
+            style={{ textDecoration: 'none' }}
+            _hover={{ color: '#251c19' }}
+          >
+            Lireddit
+          </Link>
+        </NextLink>
+      </Box>
       <Box ml="auto">{body}</Box>
     </Flex>
   );

@@ -7,11 +7,41 @@ import { User } from '../entities/User';
 import { ResolverContext } from '../types';
 import { sendEmail } from '../utils/sendEmail';
 import { EMAIL_REGEX, validateRegisterInput } from '../utils/validation';
-import { UsernamePasswordInput, UserResponse } from './types';
+import { Field, InputType, ObjectType } from 'type-graphql';
 
 const error = (field: string, message: string): UserResponse => ({
   errors: [{ field: field, message: message }],
 });
+
+@InputType()
+export class UsernamePasswordInput {
+  @Field()
+  username: string;
+
+  @Field()
+  password: string;
+
+  @Field()
+  email: string;
+}
+
+@ObjectType()
+export class FieldError {
+  @Field()
+  field: string;
+
+  @Field()
+  message: string;
+}
+
+@ObjectType()
+export class UserResponse {
+  @Field(() => User, { nullable: true })
+  user?: User;
+
+  @Field(() => [FieldError], { nullable: true })
+  errors?: FieldError[];
+}
 
 @Resolver()
 export class UserResolver {
@@ -21,10 +51,6 @@ export class UserResolver {
     @Arg('newPassword') newPassword: string,
     @Ctx() { redis, req }: ResolverContext
   ): Promise<UserResponse> {
-    if (newPassword.length < 4) {
-      return error('newPassword', 'length must be greater than 4 characters');
-    }
-
     const key = FORGET_PASSWORD_PREFIX + token;
     const userId = await redis.get(key);
 
@@ -117,6 +143,12 @@ export class UserResolver {
     // But i implemented the 5:39:39 query builder anyway :)
 
     try {
+      // const result = await User.create({
+      //   username,
+      //   email,
+      //   password: hashedPassword,
+      // });
+
       const result = await getConnection()
         .createQueryBuilder()
         .insert()

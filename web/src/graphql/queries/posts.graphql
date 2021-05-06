@@ -1,8 +1,5 @@
 query Posts {
   posts {
-    id
-    title
-    updatedAt
-    createdAt
+    ...RegularPost
   }
 }
