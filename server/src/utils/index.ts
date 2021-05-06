@@ -7,7 +7,7 @@ export function sleep(ms: number) {
 }
 
 export function abbreviate(str: string, length: number) {
-  if(str.length <= length) return str;
+  if (str.length <= length) return str;
 
   let abbreviation = '';
   for (const word of str.split(' ')) {

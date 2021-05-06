@@ -11,7 +11,7 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection, } from 'typeorm';
+import { getConnection } from 'typeorm';
 import { Post } from '../entities/Post';
 import { isAuth } from '../middleware/auth';
 import { ResolverContext } from '../types';
