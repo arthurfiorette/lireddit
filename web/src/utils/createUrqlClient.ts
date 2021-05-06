@@ -72,7 +72,9 @@ export function createUrqlClient(ssrExchange: Exchange) {
                 { query: PostsDocument },
                 result,
                 (res, query) =>
-                  res.createPost ? { posts: [...query.posts, res.createPost] } : query
+                  res.createPost
+                    ? { posts: [...query.posts, res.createPost] }
+                    : query
               );
             },
           },

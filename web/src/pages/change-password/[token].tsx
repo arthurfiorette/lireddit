@@ -14,7 +14,7 @@ const ChangePassword = (() => {
   const router = useRouter();
   const [, changePassword] = useChangePasswordMutation();
 
-  console.log(router.query.token)
+  console.log(router.query.token);
 
   return (
     <Layout variant="small">
