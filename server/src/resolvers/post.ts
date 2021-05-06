@@ -11,7 +11,7 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection } from 'typeorm';
+import { getConnection, } from 'typeorm';
 import { Post } from '../entities/Post';
 import { isAuth } from '../middleware/auth';
 import { ResolverContext } from '../types';
@@ -38,19 +38,19 @@ export class PostResolver {
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
   ): Promise<Post[]> {
-    const query = getConnection()
+    const qb = getConnection()
       .getRepository(Post)
-      .createQueryBuilder('p')
-      .orderBy('"createdAt"', 'DESC')
-      .take(Util.range(1, 50, limit));
+      .createQueryBuilder('post')
+      .orderBy('post."createdAt"', 'DESC')
+      .take(Util.range(0, 50, limit));
 
     if (cursor) {
-      query.where('"createdAt" < :cursor', {
+      qb.where('post."createdAt" < :cursor', {
         cursor: new Date(parseInt(cursor)),
       });
     }
 
-    return query.getMany();
+    return qb.getMany();
   }
 
   @Query(() => Post, { nullable: true })

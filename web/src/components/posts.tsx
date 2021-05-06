@@ -14,13 +14,13 @@ import { PostsQuery } from '../generated/graphql';
 export const PostPreview = (({ post }) => {
   return (
     <Box key={post.id} p={5} shadow="md" borderWidth="1px">
-      <Heading fontSize="xl">{post.title}</Heading>
+      <Heading fontSize="xl">{post.id}: {post.title}</Heading>
       <Text mt={4}>{post.textPreview}</Text>
     </Box>
   );
 }) as React.FC<{ post: PostsQuery['posts'][0] }>;
 
-export const PostPreviewGroup = (({ fetching, data }) => {
+export const PostPreviewGroup = (({ fetching, data, onLoadMore }) => {
   return (
     <>
       {!data ? (
@@ -43,7 +43,7 @@ export const PostPreviewGroup = (({ fetching, data }) => {
             ))}
           </Stack>
           <Flex>
-            <Button isLoading={fetching} color="teal" m="auto" my={8}>
+            <Button isLoading={fetching} onClick={onLoadMore} color="teal" m="auto" my={8}>
               Load More
             </Button>
           </Flex>
@@ -51,4 +51,5 @@ export const PostPreviewGroup = (({ fetching, data }) => {
       )}
     </>
   );
-}) as React.FC<{ data: PostsQuery | undefined; fetching: boolean }>;
+}) as React.FC<{
+  data: PostsQuery | undefined; fetching: boolean, onLoadMore: () => void }>;

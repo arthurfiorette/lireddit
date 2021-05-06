@@ -134,7 +134,7 @@ export type RegularErrorsFragment = (
 
 export type RegularPostFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'textPreview' | 'votes' | 'creatorId'>
+  & Pick<Post, 'id' | 'title' | 'textPreview' | 'votes' | 'creatorId' | 'createdAt'>
 );
 
 export type RegularUserFragment = (
@@ -257,6 +257,7 @@ export const RegularPostFragmentDoc = gql`
   textPreview
   votes
   creatorId
+  createdAt
 }
     `;
 export const RegularErrorsFragmentDoc = gql`

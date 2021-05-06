@@ -1,18 +1,16 @@
 import { cacheExchange } from '@urql/exchange-graphcache';
+import Router from 'next/router';
 import { dedupExchange, Exchange, fetchExchange } from 'urql';
 import { pipe, tap } from 'wonka';
 import {
-  CreatePostMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
-  PostsDocument,
-  PostsQuery,
   RegisterMutation,
 } from '../generated/graphql';
 import { betterUpdateQuery } from './betterUpdateQuery';
-import Router from 'next/router';
+import { cursorPagination } from './cursorPagination';
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -34,6 +32,11 @@ export function createUrqlClient(ssrExchange: Exchange) {
     exchanges: [
       dedupExchange,
       cacheExchange({
+        resolvers: {
+          Query: {
+            posts: cursorPagination(),
+          },
+        },
         updates: {
           Mutation: {
             // Update the MeQuery cache to return the logged on user.
@@ -65,18 +68,6 @@ export function createUrqlClient(ssrExchange: Exchange) {
                   res.register.errors ? query : { me: res.register.user }
               );
             },
-            // Update the PostQuery adding the created post to it.
-            // createPost: (result, _args, cache, _info) => {
-            //   betterUpdateQuery<CreatePostMutation, PostsQuery>(
-            //     cache,
-            //     { query: PostsDocument },
-            //     result,
-            //     (res, query) =>
-            //       res.createPost
-            //         ? { posts: [...query.posts, res.createPost] }
-            //         : query
-            //   );
-            // },
           },
         },
       }),
