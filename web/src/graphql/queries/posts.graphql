@@ -3,6 +3,9 @@ query Posts($limit: Int!, $cursor: String) {
     hasMore
     posts {
       ...RegularPost
+      creator {
+        ...RegularUser
+      }
     }
   }
 }

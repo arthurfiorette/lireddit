@@ -3,12 +3,16 @@ import Router from 'next/router';
 import { dedupExchange, Exchange, fetchExchange } from 'urql';
 import { pipe, tap } from 'wonka';
 import {
+  CreatePostMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
+  PostsDocument,
+  PostsQuery,
   RegisterMutation,
 } from '../generated/graphql';
+import { postsPerPage } from '../pages';
 import { betterUpdateQuery } from './betterUpdateQuery';
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
@@ -61,6 +65,17 @@ export function createUrqlClient(ssrExchange: Exchange) {
                 (res, query) =>
                   res.register.errors ? query : { me: res.register.user }
               );
+            },
+            createPost: (_result, _args, cache, _info) => {
+              // There is no need to invalidate the entire cache, because when
+              // creating a post, the first X posts is invalidated, and when
+              // requesting new posts, the cursor changes to the last but one
+              // of the list, then becomes a request never made yet. But if we
+              // added more X - 1 posts, this request is cached back to the
+              // second page from the beginning.
+              cache.invalidate('Query', 'posts', {
+                limit: postsPerPage,
+              });
             },
           },
         },

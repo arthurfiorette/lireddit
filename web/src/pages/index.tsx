@@ -6,7 +6,7 @@ import { Layout } from '../components/Layout';
 import { PostGroup } from '../components/posts';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
-const postsPerPage = 10;
+export const postsPerPage = 15;
 
 const Index = (({}) => {
   const [pageVariables, setPageVariables] = useState([
