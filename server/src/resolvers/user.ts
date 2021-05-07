@@ -1,5 +1,13 @@
 import argon2 from 'argon2';
-import { Arg, Ctx, Mutation, Query, Resolver } from 'type-graphql';
+import {
+  Arg,
+  Ctx,
+  Mutation,
+  Query,
+  Resolver,
+  Root,
+  FieldResolver,
+} from 'type-graphql';
 import { getConnection } from 'typeorm';
 import { v4 as uuid } from 'uuid';
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from '../constants';
@@ -43,8 +51,19 @@ export class UserResponse {
   errors?: FieldError[];
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: ResolverContext): string {
+    // The requested user is the current user.
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+
+    // Return an empty string to prevent other users to see this email
+    return '';
+  }
+
   @Mutation(() => UserResponse)
   async changePassword(
     @Arg('token') token: string,
