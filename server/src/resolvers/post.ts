@@ -12,7 +12,7 @@ import {
   Root,
   UseMiddleware,
 } from 'type-graphql';
-import { getConnection } from 'typeorm';
+import { LessThan } from 'typeorm';
 import { Post } from '../entities/Post';
 import { isAuth } from '../middleware/auth';
 import { ResolverContext } from '../types';
@@ -51,19 +51,15 @@ export class PostResolver {
     // Fetch one more post to find out if it has more
     const queryLimit = Util.range(0, 50, limit) + 1;
 
-    const qb = getConnection()
-      .getRepository(Post)
-      .createQueryBuilder('post')
-      .orderBy('post."createdAt"', 'DESC')
-      .take(queryLimit);
-
-    if (cursor) {
-      qb.where('post."createdAt" < :cursor', {
-        cursor: new Date(parseInt(cursor)),
-      });
-    }
-
-    const posts = await qb.getMany();
+    // TODO: I should use the query builder instead.
+    const posts = await Post.find({
+      order: { createdAt: 'DESC' },
+      take: queryLimit,
+      relations: ['creator'],
+      where: !cursor
+        ? undefined
+        : { createdAt: LessThan(new Date(parseInt(cursor))) },
+    });
 
     return {
       // The length of posts need to be called before we slice it
