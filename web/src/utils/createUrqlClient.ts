@@ -7,9 +7,7 @@ import {
   LogoutMutation,
   MeDocument,
   MeQuery,
-
-
-  RegisterMutation
+  RegisterMutation,
 } from '../generated/graphql';
 import { postsPerPage } from '../pages';
 import { betterUpdateQuery } from './betterUpdateQuery';
