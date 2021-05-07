@@ -6,6 +6,7 @@ import {
   InputType,
   Int,
   Mutation,
+  ObjectType,
   Query,
   Resolver,
   Root,
@@ -26,6 +27,15 @@ export class PostInput {
   text: string;
 }
 
+@ObjectType()
+class PaginatedPosts {
+  @Field(() => [Post])
+  posts: Post[];
+
+  @Field()
+  hasMore: boolean;
+}
+
 @Resolver(Post)
 export class PostResolver {
   @FieldResolver(() => String)
@@ -33,16 +43,19 @@ export class PostResolver {
     return Util.abbreviate(root.text, 50);
   }
 
-  @Query(() => [Post])
+  @Query(() => PaginatedPosts)
   async posts(
     @Arg('limit', () => Int) limit: number,
     @Arg('cursor', () => String, { nullable: true }) cursor: string | null
-  ): Promise<Post[]> {
+  ): Promise<PaginatedPosts> {
+    // Fetch one more post to find out if it has more
+    const queryLimit = Util.range(0, 50, limit) + 1;
+
     const qb = getConnection()
       .getRepository(Post)
       .createQueryBuilder('post')
       .orderBy('post."createdAt"', 'DESC')
-      .take(Util.range(0, 50, limit));
+      .take(queryLimit);
 
     if (cursor) {
       qb.where('post."createdAt" < :cursor', {
@@ -50,7 +63,13 @@ export class PostResolver {
       });
     }
 
-    return qb.getMany();
+    const posts = await qb.getMany();
+
+    return {
+      // The length of posts need to be called before we slice it
+      hasMore: posts.length === queryLimit,
+      posts: posts.slice(0, queryLimit - 1),
+    };
   }
 
   @Query(() => Post, { nullable: true })

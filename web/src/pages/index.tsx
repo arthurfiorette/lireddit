@@ -3,16 +3,15 @@ import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
 import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
-import { PostPreviewGroup } from '../components/posts';
-import { usePostsQuery } from '../generated/graphql';
+import { PostGroup } from '../components/posts';
 import { createUrqlClient } from '../utils/createUrqlClient';
 
+const postsPerPage = 10;
+
 const Index = (({}) => {
-  const [variables, setVariables] = useState({
-    cursor: null as string | null,
-    limit: 10,
-  });
-  const [{ data, fetching }] = usePostsQuery({ variables });
+  const [pageVariables, setPageVariables] = useState([
+    { cursor: null as string | null, limit: postsPerPage },
+  ]);
 
   return (
     <Layout variant="regular">
@@ -22,16 +21,20 @@ const Index = (({}) => {
           <Link ml="auto">Create post</Link>
         </NextLink>
       </Flex>
-      <PostPreviewGroup
-        data={data}
-        fetching={fetching}
-        onLoadMore={() =>
-          setVariables({
-            limit: variables.limit,
-            cursor: data!.posts[data!.posts.length - 1].createdAt,
-          })
-        }
-      />
+
+      {pageVariables.map((variables, index) => (
+        <PostGroup
+          key={variables.cursor + ''}
+          variables={variables}
+          isLastPage={pageVariables.length - 1 === index}
+          onLoadMore={(cursor) =>
+            setPageVariables([
+              ...pageVariables,
+              { cursor, limit: postsPerPage },
+            ])
+          }
+        />
+      ))}
     </Layout>
   );
 }) as React.FC<{}>;

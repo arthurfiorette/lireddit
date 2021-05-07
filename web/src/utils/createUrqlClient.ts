@@ -10,7 +10,6 @@ import {
   RegisterMutation,
 } from '../generated/graphql';
 import { betterUpdateQuery } from './betterUpdateQuery';
-import { cursorPagination } from './cursorPagination';
 
 const errorExchange: Exchange = ({ forward }) => (ops$) => {
   return pipe(
@@ -32,11 +31,6 @@ export function createUrqlClient(ssrExchange: Exchange) {
     exchanges: [
       dedupExchange,
       cacheExchange({
-        resolvers: {
-          Query: {
-            posts: cursorPagination(),
-          },
-        },
         updates: {
           Mutation: {
             // Update the MeQuery cache to return the logged on user.
