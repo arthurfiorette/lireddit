@@ -1,2 +1,2 @@
 export * from './PostGroup';
-export * from './PostPreview'
+export * from './PostPreview';
