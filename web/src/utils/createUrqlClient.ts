@@ -3,14 +3,13 @@ import Router from 'next/router';
 import { dedupExchange, Exchange, fetchExchange } from 'urql';
 import { pipe, tap } from 'wonka';
 import {
-  CreatePostMutation,
   LoginMutation,
   LogoutMutation,
   MeDocument,
   MeQuery,
-  PostsDocument,
-  PostsQuery,
-  RegisterMutation,
+
+
+  RegisterMutation
 } from '../generated/graphql';
 import { postsPerPage } from '../pages';
 import { betterUpdateQuery } from './betterUpdateQuery';
