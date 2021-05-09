@@ -1,5 +1,6 @@
 import { PostInput } from '../resolvers/post';
 import { FieldError, UsernamePasswordInput } from '../resolvers/user';
+import { validate } from 'field-verifier';
 
 // Valid email
 export const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
@@ -7,47 +8,36 @@ export const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/
 // Any number or letter
 export const NAME_REGEX = /^[a-zA-Z0-9-]{3,10}$/;
 
-export function validateRegisterInput({
-  username,
-  password,
-  email,
-}: UsernamePasswordInput): FieldError[] {
-  const errors: FieldError[] = [];
-
-  const setError = (field: string, message: string) =>
-    errors.push({ field, message });
-
-  if (!NAME_REGEX.test(username)) {
-    setError(
+export async function validateRegisterInput(
+  input: UsernamePasswordInput
+): Promise<FieldError[]> {
+  return validate(input, ({ parse }) => {
+    parse(
       'username',
+      (u) => NAME_REGEX.test(u),
       'must only contains number or letters and be between 3 and 10 characters'
     );
-  }
 
-  if (password.length < 4) {
-    setError('password', 'length must be greater than 4 characters');
-  }
+    parse(
+      'password',
+      (p) => p.length > 4,
+      'length must be greater than 4 characters'
+    );
 
-  if (!EMAIL_REGEX.test(email)) {
-    setError('email', 'must be a valid email');
-  }
-
-  return errors;
+    parse('email', (e) => EMAIL_REGEX.test(e), 'must be a valid email');
+  });
 }
 
-export function validateCreatePostInput({ text, title }: PostInput) {
-  const errors: FieldError[] = [];
+export async function validateCreatePostInput(
+  input: PostInput
+): Promise<FieldError[]> {
+  return await validate(input, ({ parse }) => {
+    parse(
+      'title',
+      (t) => t.split(' ').length >= 2,
+      'a title must have at least two words'
+    );
 
-  const setError = (field: string, message: string) =>
-    errors.push({ field, message });
-
-  if (title.split(' ').length < 2) {
-    setError('title', 'a title must have at least two words');
-  }
-
-  if (!text) {
-    setError('text', 'a post must have an not empty content');
-  }
-
-  return errors;
+    parse('text', (t) => !!t, 'a post must have an not empty content');
+  });
 }

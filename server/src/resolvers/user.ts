@@ -148,7 +148,7 @@ export class UserResolver {
     @Arg('options') { username, password, email }: UsernamePasswordInput,
     @Ctx() { req }: ResolverContext
   ): Promise<UserResponse> {
-    const errors = validateRegisterInput({ username, password, email });
+    const errors = await validateRegisterInput({ username, password, email });
 
     if (!!errors.length) return { errors };
 

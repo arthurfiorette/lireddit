@@ -124,7 +124,7 @@ export class PostResolver {
     @Arg('input') input: PostInput,
     @Ctx() { req }: ResolverContext
   ): Promise<PostResponse> {
-    const errors = validateCreatePostInput(input);
+    const errors = await validateCreatePostInput(input);
 
     if (!!errors.length) return { errors };
 
