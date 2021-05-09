@@ -18,6 +18,8 @@ import { Updoot } from '../entities/Updoot';
 import { isAuth } from '../middleware/auth';
 import { ResolverContext } from '../types';
 import * as Util from '../utils';
+import { validateCreatePostInput } from '../utils/validation';
+import { FieldResponse } from './types';
 
 @InputType()
 export class PostInput {
@@ -35,6 +37,12 @@ class PaginatedPosts {
 
   @Field()
   hasMore: boolean;
+}
+
+@ObjectType()
+export class PostResponse extends FieldResponse {
+  @Field(() => Post, { nullable: true })
+  post?: Post;
 }
 
 @Resolver(Post)
@@ -75,7 +83,20 @@ export class PostResolver {
     // Fetch one more post to find out if it has more
     const queryLimit = Util.range(0, 50, limit) + 1;
 
-    // TODO: I should use the query builder instead.
+    // const qb = await getConnection()
+    //   .getRepository(Post)
+    //   .createQueryBuilder('p')
+    //   .take(queryLimit)
+    //   .orderBy('p."createdAt"', 'DESC')
+    //   .innerJoinAndSelect('p.creator', 'u');
+    // if (cursor) {
+    //   qb.where('p."createdAt" < :cursor', {
+    //     cursor: new Date(parseInt(cursor)),
+    //   });
+    // }
+    // const posts = await qb.getMany();
+
+    // TODO: I should use the query builder instead, but it do not fucking work!!!!!!!!!!!!!!
     const posts = await Post.find({
       order: { createdAt: 'DESC' },
       take: queryLimit,
@@ -102,13 +123,17 @@ export class PostResolver {
   async createPost(
     @Arg('input') input: PostInput,
     @Ctx() { req }: ResolverContext
-  ): Promise<Post> {
+  ): Promise<PostResponse> {
+    const errors = validateCreatePostInput(input);
+
+    if (!!errors.length) return { errors };
+
     const post = await Post.create({
       ...input,
       creatorId: req.session.userId,
     }).save();
 
-    return post;
+    return { post };
   }
 
   @Mutation(() => Post, { nullable: true })

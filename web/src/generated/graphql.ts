@@ -265,7 +265,7 @@ export type PostsQuery = (
       { __typename?: 'Post' }
       & { creator: (
         { __typename?: 'User' }
-        & RegularUserFragment
+        & Pick<User, 'id' | 'username'>
       ) }
       & RegularPostFragment
     )> }
@@ -385,13 +385,13 @@ export const PostsDocument = gql`
     posts {
       ...RegularPost
       creator {
-        ...RegularUser
+        id
+        username
       }
     }
   }
 }
-    ${RegularPostFragmentDoc}
-${RegularUserFragmentDoc}`;
+    ${RegularPostFragmentDoc}`;
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });

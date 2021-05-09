@@ -16,6 +16,7 @@ import { ResolverContext } from '../types';
 import { sendEmail } from '../utils/sendEmail';
 import { EMAIL_REGEX, validateRegisterInput } from '../utils/validation';
 import { Field, InputType, ObjectType } from 'type-graphql';
+import { FieldResponse } from './types';
 
 const error = (field: string, message: string): UserResponse => ({
   errors: [{ field: field, message: message }],
@@ -43,12 +44,9 @@ export class FieldError {
 }
 
 @ObjectType()
-export class UserResponse {
+export class UserResponse extends FieldResponse {
   @Field(() => User, { nullable: true })
   user?: User;
-
-  @Field(() => [FieldError], { nullable: true })
-  errors?: FieldError[];
 }
 
 @Resolver(User)

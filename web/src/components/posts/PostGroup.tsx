@@ -1,4 +1,4 @@
-import { Button, Flex, Stack } from '@chakra-ui/react';
+import { Button, Flex, Stack, StackDivider } from '@chakra-ui/react';
 import React from 'react';
 import { PostsQueryVariables, usePostsQuery } from '../../generated/graphql';
 import { PostPreview } from './PostPreview';
@@ -8,7 +8,11 @@ export const PostGroup = (({ variables, isLastPage, onLoadMore }) => {
 
   return (
     <>
-      <Stack spacing={8} mt={isLastPage ? 8 : 0}>
+      <Stack
+        spacing={8}
+        mt={isLastPage ? 8 : 0}
+        divider={<StackDivider borderColor="gray.200" />}
+      >
         {data?.posts.posts.map((p) =>
           !p ? null : <PostPreview key={p.id} post={p} />
         )}

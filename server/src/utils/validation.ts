@@ -1,3 +1,4 @@
+import { PostInput } from '../resolvers/post';
 import { FieldError, UsernamePasswordInput } from '../resolvers/user';
 
 // Valid email
@@ -10,7 +11,7 @@ export function validateRegisterInput({
   username,
   password,
   email,
-}: UsernamePasswordInput) {
+}: UsernamePasswordInput): FieldError[] {
   const errors: FieldError[] = [];
 
   const setError = (field: string, message: string) =>
@@ -29,6 +30,23 @@ export function validateRegisterInput({
 
   if (!EMAIL_REGEX.test(email)) {
     setError('email', 'must be a valid email');
+  }
+
+  return errors;
+}
+
+export function validateCreatePostInput({ text, title }: PostInput) {
+  const errors: FieldError[] = [];
+
+  const setError = (field: string, message: string) =>
+    errors.push({ field, message });
+
+  if (title.split(' ').length < 2) {
+    setError('title', 'a title must have at least two words');
+  }
+
+  if (!text) {
+    setError('text', 'a post must have an not empty content');
   }
 
   return errors;
