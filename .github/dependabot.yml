@@ -3,8 +3,8 @@ updates:
   - package-ecosystem: 'npm'
     directory: '/server'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
   - package-ecosystem: 'npm'
     directory: '/web'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
