@@ -12,18 +12,20 @@ import {
 import { postsPerPage } from '../pages';
 import { betterUpdateQuery } from './betterUpdateQuery';
 
-const errorExchange: Exchange = ({ forward }) => (ops$) => {
-  return pipe(
-    forward(ops$),
-    tap(({ error }) => {
-      if (error) {
-        if (error.message == '[GraphQL] Not authenticated') {
-          Router.push('/login');
+const errorExchange: Exchange =
+  ({ forward }) =>
+  (ops$) => {
+    return pipe(
+      forward(ops$),
+      tap(({ error }) => {
+        if (error) {
+          if (error.message == '[GraphQL] Not authenticated') {
+            Router.push('/login');
+          }
         }
-      }
-    })
-  );
-};
+      })
+    );
+  };
 
 export function createUrqlClient(ssrExchange: Exchange) {
   return {
