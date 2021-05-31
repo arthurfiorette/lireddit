@@ -21,7 +21,7 @@
   "homepage": "https://github.com/ArthurFiorette/lireddit#readme",
   "dependencies": {
     "@chakra-ui/icons": "^1.0.11",
-    "@chakra-ui/react": "^1.5.2",
+    "@chakra-ui/react": "^1.6.3",
     "@emotion/react": "^11.1.5",
     "@emotion/styled": "^11.3.0",
     "@urql/exchange-graphcache": "^4.0.0",
