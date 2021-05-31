@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/ArthurFiorette/lireddit#readme",
   "dependencies": {
-    "apollo-server-express": "^2.23.0",
+    "apollo-server-express": "^2.25.0",
     "argon2": "^0.27.2",
     "connect-redis": "^5.1.0",
     "cors": "^2.8.5",
