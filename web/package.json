@@ -26,7 +26,7 @@
     "@emotion/styled": "^11.3.0",
     "@urql/exchange-graphcache": "^4.0.0",
     "formik": "^2.2.6",
-    "framer-motion": "^4.1.8",
+    "framer-motion": "^4.1.17",
     "graphql": "^15.5.0",
     "javascript-time-ago": "^2.3.4",
     "next": "^10.1.3",
