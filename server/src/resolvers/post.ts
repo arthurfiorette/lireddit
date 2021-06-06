@@ -45,6 +45,15 @@ export class PostResponse extends FieldResponse {
   post?: Post;
 }
 
+@ObjectType()
+export class VoteResponse {
+  @Field()
+  computed: number;
+
+  @Field()
+  successful: boolean;
+}
+
 @Resolver(Post)
 export class PostResolver {
   @FieldResolver(() => String)
@@ -52,27 +61,43 @@ export class PostResolver {
     return Util.abbreviate(root.text, 50);
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => VoteResponse)
   @UseMiddleware(isAuth)
   async vote(
     @Arg('postId', () => Int) postId: number,
     @Arg('value', () => Int) value: number,
     @Ctx() { req }: ResolverContext
-  ): Promise<boolean> {
+  ): Promise<VoteResponse> {
     const { userId } = req.session;
     const realValue = value !== -1 ? 1 : -1;
 
-    // TODO: If we change the vote, it throws an error.
+    // TODO: If the user downvote and upvoted post, it will be 0, not -1.
+
+    const updoot = await Updoot.findOne({ where: { postId, userId } });
+
+    // User has voted before to the same value
+    if (updoot && updoot.value === realValue) {
+      return { successful: false, computed: 0 };
+    }
+
+    const computedValue = (updoot ? 2 : 1) * realValue;
+
     await getConnection().transaction(async (manager) => {
-      await manager.insert(Updoot, { userId, postId, value: realValue });
+      if (updoot) {
+        await manager.update(Updoot, { userId, postId }, { value: realValue });
+      } else {
+        await manager.insert(Updoot, { userId, postId, value: realValue });
+      }
+
+      // Take away and add the point, that's why 2 * realValue
       await manager.update(
         Post,
         { id: postId },
-        { votes: () => `votes + ${realValue}` }
+        { votes: () => `votes + ${computedValue}` }
       );
     });
 
-    return true;
+    return { successful: true, computed: computedValue };
   }
 
   @Query(() => PaginatedPosts)
@@ -86,9 +111,9 @@ export class PostResolver {
     // const qb = await getConnection()
     //   .getRepository(Post)
     //   .createQueryBuilder('p')
-    //   .take(queryLimit)
+    //   .limit(queryLimit)
     //   .orderBy('p."createdAt"', 'DESC')
-    //   .innerJoinAndSelect('p.creator', 'u');
+    //   .leftJoinAndSelect('p.creator', 'c');
     // if (cursor) {
     //   qb.where('p."createdAt" < :cursor', {
     //     cursor: new Date(parseInt(cursor)),
@@ -118,20 +143,37 @@ export class PostResolver {
     return Post.findOne(id);
   }
 
-  @Mutation(() => Post)
+  @Mutation(() => PostResponse)
   @UseMiddleware(isAuth)
   async createPost(
-    @Arg('input') input: PostInput,
+    @Arg('input') { text, title }: PostInput,
     @Ctx() { req }: ResolverContext
   ): Promise<PostResponse> {
-    const errors = await validateCreatePostInput(input);
+    const errors = await validateCreatePostInput({ text, title });
 
     if (!!errors.length) return { errors };
 
-    const post = await Post.create({
-      ...input,
-      creatorId: req.session.userId,
-    }).save();
+    const post = await getConnection().transaction(async (tm) => {
+      const { identifiers } = await Post.insert({
+        text,
+        title,
+        creatorId: req.session.userId,
+      });
+
+      const [{ id }] = identifiers;
+
+      return await tm.findOne(Post, {
+        where: { id },
+        relations: ['creator'],
+      });
+    });
+
+    if (!post) {
+      console.error('ERROR: Should have a post!');
+      return {
+        errors: [{ field: 'title', message: 'Error: Internal server error' }],
+      };
+    }
 
     return { post };
   }

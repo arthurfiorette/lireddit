@@ -22,6 +22,7 @@ import { Updoot } from './entities/Updoot';
     type: 'postgres',
     database: 'lireddit',
     username: 'postgres',
+    useUTC: true,
     password: 'postgres',
     logging: true,
     migrations: [path.join(__dirname, './migrations/*')],
@@ -69,11 +70,9 @@ import { Updoot } from './entities/Updoot';
 
   apollo.applyMiddleware({ app, cors: false });
 
-  const server = app.listen(1227, () => console.log('Server started'));
+  const server = app.listen(1227, () =>
+    console.log('---\n\n# Server started\n\n---')
+  );
 
-  process.on('SIGTERM', () => {
-    server.close(async () => {
-      await conn.close();
-    });
-  });
+  process.on('SIGTERM', () => server.close(async () => await conn.close()));
 })().catch(console.error);

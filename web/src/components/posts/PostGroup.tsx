@@ -1,6 +1,6 @@
 import { Button, Flex, Stack, StackDivider } from '@chakra-ui/react';
 import React from 'react';
-import { PostsQueryVariables, usePostsQuery } from '../../generated/graphql';
+import { PostsQueryVariables, usePostsQuery } from 'src/generated/graphql';
 import { PostPreview } from './PostPreview';
 
 export const PostGroup = (({ variables, isLastPage, onLoadMore }) => {

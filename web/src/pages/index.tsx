@@ -2,9 +2,9 @@ import { Flex, Heading, Link } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
 import React, { useState } from 'react';
-import { Layout } from '../components/Layout';
-import { PostGroup } from '../components/posts';
-import { createUrqlClient } from '../utils/createUrqlClient';
+import { Layout } from '@/components/Layout';
+import { PostGroup } from '@/components/posts/PostGroup';
+import { createUrqlClient } from '@/utils/urql';
 
 export const postsPerPage = 15;
 

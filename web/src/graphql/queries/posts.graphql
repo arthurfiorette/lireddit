@@ -2,10 +2,7 @@ query Posts($limit: Int!, $cursor: String) {
   posts(cursor: $cursor, limit: $limit) {
     hasMore
     posts {
-      ...RegularPost
-      creator {
-        ...RegularUser
-      }
+      ...PostSnippet
     }
   }
 }

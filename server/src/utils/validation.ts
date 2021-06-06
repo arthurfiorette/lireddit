@@ -1,6 +1,6 @@
 import { PostInput } from '../resolvers/post';
 import { FieldError, UsernamePasswordInput } from '../resolvers/user';
-import { validate } from 'field-verifier';
+import { validate } from 'typed-core/dist/validator';
 
 // Valid email
 export const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;

@@ -6,11 +6,11 @@
   "private": "true",
   "scripts": {
     "watch": "tsc -w",
-    "dev": "nodemon dist/index.js",
     "build": "tsc",
+    "dev": "nodemon --exec npm start",
+    "dev:tsn": "nodemon --exec npm run start:tsn",
     "start": "node dist/index.js",
-    "start:tsn": "ts-node src/index.ts",
-    "dev:tsn": "nodemon --exec ts-node dist/index.js"
+    "start:tsn": "ts-node src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -29,14 +29,14 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
-    "field-verifier": "^1.1.0",
     "graphql": "^15.5.0",
     "ioredis": "^4.26.0",
     "nodemailer": "^6.5.0",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
-    "typeorm": "^0.2.32",
+    "typed-core": "^1.1.2",
+    "typeorm": "^0.2.34",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

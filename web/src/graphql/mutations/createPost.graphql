@@ -1,5 +1,10 @@
 mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
-    ...RegularPost
+    errors {
+      ...RegularErrors
+    }
+    post {
+      ...RegularPost
+    }
   }
 }
