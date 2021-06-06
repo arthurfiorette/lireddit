@@ -3,7 +3,8 @@ import { FieldError, UsernamePasswordInput } from '../resolvers/user';
 import { validate } from 'typed-core/dist/validator';
 
 // Valid email
-export const EMAIL_REGEX = /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
+export const EMAIL_REGEX =
+  /^[a-z0-9!#$%&'*+\/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+\/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/i;
 
 // Any number or letter
 export const NAME_REGEX = /^[a-zA-Z0-9-]{3,10}$/;
