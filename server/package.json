@@ -30,7 +30,7 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "graphql": "^15.5.0",
-    "ioredis": "^4.26.0",
+    "ioredis": "^4.27.5",
     "nodemailer": "^6.5.0",
     "pg": "^8.6.0",
     "reflect-metadata": "^0.1.13",
